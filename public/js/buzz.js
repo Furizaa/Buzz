@@ -26,8 +26,10 @@
   Buzz.Controller = (function() {
 
     function Controller(parent, $el) {
+      this.parent = parent;
       this.$el = $el;
       this.$el.appendTo(parent);
+      this.$el.data('controller', this);
     }
 
     Controller.prototype.remove = function() {
@@ -62,17 +64,116 @@
 
     function SwitchController(parent, desc) {
       var _this = this;
-      this.on = false;
-      this.$el = $('<div class="item switch switch-off"></div>');
+      this.value = false;
+      this.$el = $('<div class="item switch"></div>');
       this.$el.text(desc);
       SwitchController.__super__.constructor.call(this, parent, this.$el);
       this.$el.on('click', function() {
         _this.$el.toggleClass('switch-off');
-        return _this.on = !_this.on;
+        return _this.value = !_this.value;
       });
     }
 
     return SwitchController;
+
+  })(Buzz.Controller);
+
+  Buzz.RadioController = (function(_super) {
+
+    __extends(RadioController, _super);
+
+    function RadioController(parent, desc) {
+      var _this = this;
+      this.value = false;
+      this.$el = $('<div class="item radio switch-off"></div>');
+      this.$el.text(desc);
+      RadioController.__super__.constructor.call(this, parent, this.$el);
+      this.$el.on('click', function() {
+        if (_this.value === true) {
+          return;
+        }
+        _this.$el.toggleClass('switch-off');
+        _this.buffer = !_this.value;
+        if (_this.buffer) {
+          $.each(_this.parent.children('div.radio'), function() {
+            return $(this).data('controller')._switchOff();
+          });
+          return _this.value = _this.buffer;
+        }
+      });
+      this;
+
+    }
+
+    RadioController.prototype._switchOff = function() {
+      if (this.value === false) {
+        return;
+      }
+      this.$el.addClass('switch-off');
+      return this.value = false;
+    };
+
+    return RadioController;
+
+  })(Buzz.Controller);
+
+  Buzz.TextController = (function(_super) {
+
+    __extends(TextController, _super);
+
+    function TextController(parent, desc) {
+      var $text,
+        _this = this;
+      this.value = "";
+      this.$el = $('<div class="item text"><span></span><input type="text" /></div>');
+      this.$el.children('span').text(desc);
+      TextController.__super__.constructor.call(this, parent, this.$el);
+      $text = this.$el.children('input');
+      $text.on('change', function() {
+        return _this.value = $text.attr('value');
+      });
+    }
+
+    return TextController;
+
+  })(Buzz.Controller);
+
+  Buzz.BarController = (function(_super) {
+
+    __extends(BarController, _super);
+
+    function BarController(parent, desc, min, max, step) {
+      var $bar, $clickX, $fill, $text,
+        _this = this;
+      this.value = 0;
+      this.$el = $('<div class="item bar"><span></span><input type="text" /><div class="bar"><div /></ div></div>');
+      this.$el.children('span').text(desc);
+      BarController.__super__.constructor.call(this, parent, this.$el);
+      console.log($bar);
+      $bar = this.$el.children('div');
+      $fill = $bar.children('div');
+      $text = this.$el.children('input');
+      $clickX = 0;
+      $bar.on('mousedown', function(event) {
+        $clickX = event.screenX;
+        $(window).on('mouseup', function(event) {
+          return $(window).off('mouseup mousemove');
+        });
+        return $(window).on('mousemove', function(event) {
+          var offset;
+          event.preventDefault();
+          offset = event.screenX - $clickX;
+          $clickX = event.screenX;
+          _this.value = Math.max(min, Math.min(max, _this.value + offset * step));
+          $text.attr('value', _this.value);
+          return $fill.css({
+            width: (100 / (max - min) * (_this.value - min)) + "%"
+          });
+        });
+      });
+    }
+
+    return BarController;
 
   })(Buzz.Controller);
 
@@ -86,6 +187,7 @@
       $el.appendTo(this.$parent);
       $el.find('h3').text(this.desc);
       this.$root = this.$parent.find('.container');
+      this.$root.data('controller', this);
       this;
 
     }
@@ -114,6 +216,51 @@
         return onChange.call(con, params);
       });
       return con;
+    };
+
+    Container.prototype.addRadio = function(desc, onClick, params) {
+      var con,
+        _this = this;
+      if (params == null) {
+        params = [];
+      }
+      con = new Buzz.RadioController(this.$root, desc);
+      con.$el.on('click', function() {
+        return onClick.call(con, params);
+      });
+      return con;
+    };
+
+    Container.prototype.addText = function(desc, onChange, params) {
+      var $text, con,
+        _this = this;
+      if (params == null) {
+        params = [];
+      }
+      con = new Buzz.TextController(this.$root, desc);
+      $text = con.$el.children('input');
+      $text.on('blur', function() {
+        return onChange.call(con, params);
+      });
+      return $text.on('keyup', function(event) {
+        if (event.keyCode === 13) {
+          return $text.trigger('blur');
+        }
+      });
+    };
+
+    Container.prototype.addBar = function(desc, min, max, step, onChange, params) {
+      var con;
+      if (params == null) {
+        params = [];
+      }
+      return con = new Buzz.BarController(this.$root, desc, min, max, step);
+    };
+
+    Container.prototype.addNumber = function(desc, onChange, params) {
+      if (params == null) {
+        params = [];
+      }
     };
 
     return Container;
