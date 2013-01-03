@@ -3,7 +3,6 @@ server.js
 
 # - Compiled assets
 public/css/*.css
-public/js/*.js
 
 # - Sublime Text 2 Project files
 *.sublime-*

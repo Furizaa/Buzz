@@ -19,11 +19,13 @@ module.exports = function(grunt) {
         lint: {
             all: ['grunt.js']
         },
-        coffeefiles: ['lib/**/*.coffee'],
+        coffeefiles: ['src/**/*.coffee'],
         coffee: {
             compile: {
                 files: {
-                    'server.js': 'server.coffee'
+                    'server.js': 'server.coffee',
+                    'public/js/*.js': '<config:coffeefiles>',
+                    'public/js/test.js': 'test/**/*.coffee'
                 }
             }
         },
@@ -33,15 +35,14 @@ module.exports = function(grunt) {
                     paths: ["assets/less", "assets/bootstrap"]
                 },
                 files: {
-                    "public/css/core.css": "assets/less/core.less",
-                    "public/css/responsive.css": "assets/bootstrap/responsive.less"
+                    "public/css/core.css": "assets/less/core.less"
                 }
             }
         },
         watch: {
             //Cafeine watcher: Run coffee on all .coffee files
             cafeine: {
-                files: ['<config:coffeefiles>', 'server.coffee'],
+                files: ['<config:coffeefiles>', 'server.coffee', 'test/**/*.coffee'],
                 tasks: 'coffee'
             },
             lesscompiler: {

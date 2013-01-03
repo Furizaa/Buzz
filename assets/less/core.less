@@ -1,5 +1,51 @@
-@import "bootstrap.less";
+@import "reset.less";
+@import "variables.less";
+@import "mixins.less";
+
+// Base CSS
+@import "type.less";
+@import "code.less";
+@import "forms.less";
+@import "tables.less";
 
 body {
-    background: #CFD2D7;
+    background: #565656;
+}
+
+#buzz {
+	width: 250px;
+	color: #7f7d7a;
+	font-family: Menlo, Consolas, "Courier New", monospace;
+	font-size: 14px;
+
+	@itemHeight: 24px;
+
+	.item {
+		height: @itemHeight;
+		border-bottom: 1px solid #111111;
+		background-color: #333333;
+		padding: 4px 5px 0 5px;
+	}
+	span { margin: 0; }
+
+	.switch-off {
+		color: #212121;
+	}
+
+	.container {
+		border: 2px solid #111111;
+		div:first-child {
+			background-color: #282826;
+		}
+		.item:first-child, .item:last-child {
+			border-bottom: none;
+		};
+		h3 {
+			font-size: 14px;
+			margin: 0; padding: 0;
+			line-height: 14px;
+		}
+
+	}
+
 }
