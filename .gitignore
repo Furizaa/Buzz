@@ -1,5 +1,6 @@
-# - Compiled coffees
-server.js
+# - Compiled Js
+public/js/buzz.js
+public/js/test.js
 
 # - Compiled assets
 public/css/*.css

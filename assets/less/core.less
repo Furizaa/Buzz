@@ -54,7 +54,7 @@ body {
 
 	}
 
-	input[type="text"] {
+	input[type="text"], select {
 		border: none;
 		.border-radius( 0 );
 		background-color: #aaaaaa;
@@ -64,6 +64,10 @@ body {
 		float: right;
 		&:after { .clearfix() };
 		padding: 4px; margin: 0;
+	}
+	select {
+		height: 20px;
+		width: 148px;
 	}
 	.bar {
 		div.bar {

@@ -2,25 +2,29 @@ $ () ->
     console.log "READY"
     buzz = new Buzz "body"
 
-    layer = buzz.addContainer "Layer"
+    layer = buzz.addContainer "Container"
 
-    button = layer.addButton "Button", ->
+    button = layer.addController( "Button", "Button" ).onClick ( value ) ->
         console.log "Button Pressed"
-        @.remove()
 
-    aswitch = layer.addSwitch "Switch", ->
-        console.log "Switch Flipped", @value
+    aswitch = layer.addController( "Switch", "Switch" ).onChange ( value ) ->
+        console.log "Switch Flipped", value
 
-    radio1 = layer.addRadio "Radio 1", ->
-        console.log "Selected Radio 1", @value
+    radio1 = layer.addController( "Radio", "Radio 1" ).onChange ( value ) ->
+        console.log "Selected Radio 1", value
 
-    radio2 = layer.addRadio "Radio 2", ->
-        console.log "Selected Radio 2", @value
+    radio2 = layer.addController( "Radio", "Radio 2" ).onChange ( value ) ->
+        console.log "Selected Radio 2", value
 
-    text = layer.addText "Text", ->
-        console.log @value
+    text = layer.addController( "Text", "Text" ).setValue( "Hi" ).onChange ( value ) ->
+        console.log value
 
-    number = layer.addNumber "Number", ->
-        console.log @value
+    bar = layer.addController( "Bar", "Bar" ).min( -500 ).max( 500 ).setValue(250).onChange ( value ) ->
+        console.log value
 
-    bar = layer.addBar "Bar", -500, 500, 1, ->
+    num = layer.addController( "Number", "Number" ).min( -500 ).max( 500 ).setValue(250).onChange ( value ) ->
+        console.log value
+
+    sel = layer.addController( "Select", "Select").options( ["Option 1", "Option 2"] ).onChange ( value ) ->
+        console.log value
+
