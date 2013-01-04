@@ -6,7 +6,10 @@ window.Buzz = class Buzz
         @
 
     addContainer: ( desc ) ->
-        new Buzz.Container @$root, desc
+        new Buzz.ContainerController @$root, desc
+
+    @ColorPointer: 0
+    @Colors: [ '#ffffff', '#ffffff', '#ffffff', '#ffffff', '#ffffff' ,'#ffffff' ]
 
     @Template:
         Container: '
@@ -17,18 +20,27 @@ window.Buzz = class Buzz
             </div>
         '
         Button: '
-            <div class="item btn"></div>
+            <div class="item btn">
+                <i class="icon-cogs" />
+                <span />
+            </div>
         '
         Switch: '
-            <div class="item switch"></div>
+            <div class="item">
+                <i class="icon-check-empty" />
+                <span />
+            </div>
         '
         Radio: '
-            <div class="item radio switch-off"></div>
+            <div class="item radio">
+                <i class="icon-circle-blank" />
+                <span />
+            </div>
         '
         Text: '
-            <div class="item text">
+            <div class="item">
                 <span />
-                <input type="text" />
+                <input type="text" class="string" />
             </div>
         '
         Number: '
@@ -41,7 +53,9 @@ window.Buzz = class Buzz
             <div class="item bar">
                 <span />
                 <input type="text" />
-                <div class="bar" />
+                <div class="bar">
+                    <div />
+                </div>
             </div>
         '
         Select: '
@@ -59,6 +73,7 @@ class Buzz.Controller
     constructor: ( @parent, @$el ) ->
         @$el.appendTo @parent
         @$el.data 'controller', @
+        @$el.addClass( 'color' + Buzz.ColorPointer )
 
     remove: () ->
         @onRemove.call @ if @onRemove
@@ -91,7 +106,7 @@ Button Controller
 class Buzz.ButtonController extends Buzz.Controller
 
     constructor: ( @parent, desc, @$el ) ->
-        @$el.text desc
+        @$el.children( 'span' ).text desc
         super @parent, @$el
 
     onClick: ( @_onClick, @_onClickParams = [] ) ->
@@ -106,10 +121,11 @@ class Buzz.SwitchController extends Buzz.Controller
 
     constructor: ( @parent, desc, @$el ) ->
         @value = false
-        @$el.text desc
+        @$el.children('span').text desc
+        @$icon = @$el.children('i')
         super @parent, @$el
         @$el.on 'click', =>
-            @$el.toggleClass 'switch-off'
+            @$icon.toggleClass 'icon-check-empty icon-check'
             @value = not @value
             @_onChange?.call @, @_onChangeParams
 
@@ -120,11 +136,12 @@ class Buzz.RadioController extends Buzz.Controller
 
     constructor: ( @parent, desc, @$el ) ->
         @value = false
-        @$el.text desc
+        @$el.children('span').text desc
+        @$icon = @$el.children('i')
         super @parent, @$el
         @$el.on 'click', =>
             if @value is true then return
-            @$el.toggleClass 'switch-off'
+            @$icon.toggleClass 'icon-circle-blank icon-circle'
             @buffer = not @value
             if @buffer
                 $.each @parent.children('div.radio'), -> $( @ ).data('controller')._switchOff()
@@ -134,7 +151,7 @@ class Buzz.RadioController extends Buzz.Controller
 
     _switchOff: () ->
         if @value is false then return
-        @$el.addClass 'switch-off'
+        @$icon.addClass( 'icon-circle-blank' ).removeClass( 'icon-circle' )
         @value = false
         @_onChange?.call @, @value, @_onChangeParams
 
@@ -172,11 +189,11 @@ BarController
 ###
 class Buzz.BarController extends Buzz.InputController
 
-    constructor: ( parent, desc, @$el ) ->
+    constructor: ( @parent, desc, @$el ) ->
         @value  = @_min = @_max = 0
         @_step  = 1
         @$el.children('span').text desc
-        super parent, @$el
+        super @parent, @$el
         $bar    = @$el.children('div')
         @$fill   = $bar.children('div')
         @$text   = @$el.children('input')
@@ -210,11 +227,11 @@ Select Controller
 ###
 class Buzz.SelectController extends Buzz.Controller
 
-    constructor: ( parent, desc, @$el ) ->
+    constructor: ( @parent, desc, @$el ) ->
         @value = undefined
         @$el.children('span').text desc
         @$select = @$el.children( 'select' );
-        super parent, @$el
+        super @parent, @$el
         @$el.on 'change', =>
             @_onChange?.call @, @$select.val(), @_onChangeParams
 
@@ -228,25 +245,24 @@ class Buzz.SelectController extends Buzz.Controller
     _update: () ->
         @$select.val( @value )
         @
-        
+
 ###
 Container
 ###
-class Buzz.Container
+class Buzz.ContainerController extends Buzz.Controller
 
-    constructor: ( @$parent, @desc ) ->
-        $el = $ Buzz.Template.Container
-        $el.appendTo @$parent
-        $el.find( 'h3' ).text @desc
-        @$root = @$parent.find( '.container' )
-        @$root.data 'controller', @
+    constructor: ( @parent, desc ) ->
+        @$el = $ Buzz.Template.Container
+        @$el.find( 'h3' ).text desc
+        super @parent, @$el
+        Buzz.ColorPointer++
         @
 
     addController: ( type, desc ) ->
         type = type.charAt( 0 ).toUpperCase() + type.toLowerCase().slice( 1 )
         el  = Buzz.Template[ type ]
         fn   = Buzz[ type + "Controller" ]
-        if el and fn then return new fn @$root, desc, $( el )
+        if el and fn then return new fn @$el, desc, $( el )
         undefined
 
 
