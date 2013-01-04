@@ -1,5 +1,6 @@
 # Buzz
 Ugly Gui Library for BowShock HTML5 Game Framework. I've wrote that in like a day so the code can probably be smelled in Simbabwe and beyond. Because dat.gui was not powerfull enough.
+
 ![Screenshot](https://raw.github.com/Furizaa/Buzz/master/screen.png)
 
 ```coffeescript
